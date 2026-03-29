@@ -14,11 +14,13 @@ features = ['escolaridade', 'itinerancia_calon', 'acesso_saneamento',
 
 # 2. Mockup de Dados (Exemplo de entrada para treinamento)
 data = {
-    'escolaridade': [0, 1, 0, 2], # 0: Baixa, 2: Alta
-    'itinerancia_calon': [1, 0, 1, 0], # 1: Alta mobilidade [cite: 198]
+    'escolaridade': [0, 1, 0, 2],           # 0: Baixa, 2: Alta
+    'itinerancia_calon': [1, 0, 1, 0],      # 1: Alta mobilidade [cite: 198]
     'acesso_saneamento': [0, 1, 0, 1],
     'resultado_pap_anterior': [1, 0, 1, 0], # 1: Alterado
-    'target_risco': [1, 0, 1, 0] # 1: Risco Elevado
+    'idade_primeira_gravidez': [16, 25, 15, 28],
+    'vacinacao_hpv': [0, 1, 0, 1],          # 0: Não vacinada, 1: Vacinada
+    'target_risco': [1, 0, 1, 0]            # 1: Risco Elevado
 }
 
 df = pd.DataFrame(data)
@@ -26,12 +28,17 @@ df = pd.DataFrame(data)
 # 3. Construção do Modelo (Machine Learning)
 # Utiliza Random Forest para garantir transparência nas decisões clínicas [cite: 197]
 model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(df[features[:-1]], df['target_risco'])
+model.fit(df[features], df['target_risco'])
 
 def predizer_risco(paciente_data):
     # Retorna a probabilidade de risco oncológico
-    probabilidade = model.predict_proba([paciente_data])[0][1]
+    entrada = pd.DataFrame([paciente_data], columns=features)
+    probabilidade = model.predict_proba(entrada)[0][1]
     return f"Risco Predito: {probabilidade * 100:.2f}%"
 
 # Mensagem de Autoria Protegida
 print("Algoritmo CERVIX-PRED registrado sob autoria de Tiago S. Albuquerque.")
+
+# Exemplo de uso: paciente com alto risco
+paciente_exemplo = [0, 1, 0, 1, 16, 0]  # [escolaridade, itinerancia_calon, acesso_saneamento, resultado_pap_anterior, idade_primeira_gravidez, vacinacao_hpv]
+print(predizer_risco(paciente_exemplo))
